@@ -1,0 +1,41 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "rewrites": [
+    {
+      "source": "/",
+      "destination": "/templates/index.html"
+    },
+    {
+      "source": "/index.html",
+      "destination": "/templates/index.html"
+    },
+    {
+      "source": "/coming-soon",
+      "destination": "/templates/coming-soon.html"
+    },
+    {
+      "source": "/coming-soon.html",
+      "destination": "/templates/coming-soon.html"
+    },
+    {
+      "source": "/favicon.svg",
+      "destination": "/static/img/favicon.svg"
+    },
+    {
+      "source": "/css/:path*",
+      "destination": "/static/css/:path*"
+    },
+    {
+      "source": "/js/:path*",
+      "destination": "/static/js/:path*"
+    },
+    {
+      "source": "/img/:path*",
+      "destination": "/static/img/:path*"
+    },
+    {
+      "source": "/mp3/:path*",
+      "destination": "/static/mp3/:path*"
+    }
+  ]
+}
