@@ -363,12 +363,11 @@ img {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   place-items: center;
-  align-content: end;
+  align-content: center;
   justify-content: center;
   min-height: 0;
   gap: 0;
   padding: 1.25rem var(--page-gutter);
-  translate: 0 clamp(5rem, 10svh, 7rem);
   pointer-events: none;
 }
 
