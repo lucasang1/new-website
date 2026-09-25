@@ -358,14 +358,18 @@ img {
 }
 
 .turntable-stage {
+  position: relative;
+  z-index: 2;
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   place-items: center;
-  align-content: center;
+  align-content: end;
   justify-content: center;
   min-height: 0;
   gap: 0;
   padding: 1.25rem var(--page-gutter);
+  translate: 0 clamp(5rem, 10svh, 7rem);
+  pointer-events: none;
 }
 
 .now-playing {
@@ -379,6 +383,7 @@ img {
   margin-bottom: calc(var(--deck-size) * -0.055);
   padding: 0.32rem 0.65rem 0.28rem;
   gap: 0.08rem;
+  pointer-events: auto;
 }
 
 .now-playing[data-state="empty"] {
@@ -583,6 +588,7 @@ img {
   width: var(--deck-size);
   aspect-ratio: 1;
   margin-inline: auto;
+  pointer-events: auto;
 }
 
 .turntable > img {
@@ -641,54 +647,55 @@ img {
 
 .carousel-shell {
   position: relative;
+  z-index: 3;
   display: flex;
   justify-content: center;
   width: 100%;
   min-width: 0;
-  padding: 1rem var(--page-gutter) 2rem;
 }
 
 .record-carousel {
-  --album-cue-lift: -0.7rem;
   --record-selected-lift: -45%;
-  --record-gap: 2rem;
+  --record-gap: 1.125rem;
   --record-card-size: 12.4rem;
-  display: grid;
-  grid-template-columns: repeat(7, var(--record-card-size));
+  position: relative;
   flex: 0 0 auto;
-  align-items: end;
-  width: max-content;
+  width: 100%;
+  height: calc(var(--record-card-size) + 6.5rem);
   margin-inline: 0;
-  padding: 2rem 0 1rem;
-  gap: var(--record-gap);
+  overflow: hidden;
+  cursor: grab;
+  touch-action: pan-y;
+  user-select: none;
 }
 
 .record-carousel::-webkit-scrollbar {
   display: none;
 }
 
+.record-carousel.is-dragging {
+  cursor: grabbing;
+}
+
 .record-card {
-  position: relative;
-  top: var(--carousel-arc-offset, 0);
-  left: var(--carousel-arc-shift, 0);
+  position: absolute;
+  bottom: 1rem;
+  left: 50%;
   isolation: isolate;
-  width: 100%;
+  width: var(--record-card-size);
   aspect-ratio: 1;
   padding: 0;
   border: 0;
+  border-radius: 0;
   background: transparent;
   cursor: pointer;
-  rotate: var(--carousel-card-angle, 0deg);
-  scroll-snap-align: center;
-  transition:
-    top 280ms var(--ease-standard),
-    left 280ms var(--ease-standard),
-    rotate 280ms var(--ease-standard),
-    translate 280ms var(--ease-standard);
-}
-
-.record-carousel.is-positioning-immediately .record-card {
-  transition: none;
+  transform:
+    translateX(-50%)
+    translateX(var(--carousel-card-x, 0))
+    translateY(var(--carousel-arc-offset, 0))
+    rotate(var(--carousel-card-angle, 0deg));
+  transform-origin: center;
+  will-change: transform;
 }
 
 .record-card::before {
@@ -706,7 +713,9 @@ img {
   inset: 0;
   width: 100%;
   height: 100%;
+  -webkit-user-drag: none;
   transition: opacity 160ms var(--ease-standard), translate 260ms var(--ease-standard);
+  user-select: none;
 }
 
 .record-card img:first-child {
@@ -731,10 +740,6 @@ img {
   translate: 0 var(--record-selected-lift);
 }
 
-.record-card.is-cueing {
-  translate: 0 var(--album-cue-lift);
-}
-
 .record-card.is-cueing img:first-child {
   translate: 0 var(--record-selected-lift);
 }
@@ -744,19 +749,6 @@ img {
 }
 
 .record-card.is-ejecting img:first-child {
-  transition: none;
-}
-
-.record-card-carousel-ghost {
-  position: fixed;
-  z-index: 2;
-  margin: 0;
-  pointer-events: none;
-  transition: none;
-  will-change: transform;
-}
-
-.record-card-carousel-ghost img {
   transition: none;
 }
 
@@ -841,7 +833,7 @@ img {
 
 .portfolio-reveal {
   position: fixed;
-  z-index: 50;
+  z-index: 300;
   inset: 0;
   display: none;
   pointer-events: none;
@@ -1058,7 +1050,8 @@ img {
   }
 
   .crate {
-    width: min(78vw, 20rem, calc((100svh - var(--header-height)) * 0.39));
+    width: min(70vw, 17.5rem, calc((100svh - var(--header-height)) * 0.35));
+    translate: 0 5%;
   }
 
   .collection-view {
@@ -1067,8 +1060,10 @@ img {
 
   .turntable-stage {
     grid-template-columns: minmax(0, 1fr);
+    align-content: start;
     gap: 0;
-    padding-block: 1rem 0.5rem;
+    padding-block: 0.75rem 0.5rem;
+    translate: 0;
   }
 
   .now-playing-controls {
@@ -1082,25 +1077,21 @@ img {
   .carousel-shell {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
-    padding: 1rem var(--page-gutter) 2rem;
   }
 
   .record-carousel {
-    display: grid;
-    grid-template-columns: repeat(7, var(--record-card-size));
+    --record-gap: 1.125rem;
     flex: none;
-    width: calc(100vw - var(--page-gutter) - var(--page-gutter));
-    min-height: 0;
+    width: 100vw;
+    height: calc(var(--record-card-size) + 5.5rem);
     margin: 0 auto;
-    padding: 2rem 0 1rem;
-    gap: var(--record-gap);
-    overflow-x: auto;
-    overflow-y: visible;
+    overflow: visible;
     scrollbar-width: none;
+    translate: 0 -30%;
   }
 
   .record-card {
-    width: 100%;
+    width: var(--record-card-size);
     cursor: pointer;
   }
 

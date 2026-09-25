@@ -1,164 +1,98 @@
-const getCardCenter = (card) => card.offsetLeft + card.offsetWidth / 2;
-
 export function createRecordCarousel(root) {
-  const carouselDuration = 1440;
-  const carouselEasing = "cubic-bezier(0.2, 0.7, 0.2, 1)";
   const cards = [...root.querySelectorAll("[data-record-id]")];
+  root.querySelectorAll("img").forEach((image) => {
+    image.draggable = false;
+  });
+  root.addEventListener("dragstart", (event) => event.preventDefault());
   const previousButton = document.querySelector("[data-carousel-previous]");
   const nextButton = document.querySelector("[data-carousel-next]");
-  const desktopLayout = window.matchMedia("(min-width: 48rem)");
+  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
   let activeIndex = Math.max(0, cards.findIndex((card) => card.classList.contains("is-active")));
-  const curveAngle = 10;
-  let scrollTimer;
-  const transitionGhosts = new Set();
+  const bendAngle = 10;
+  const scrollEase = 0.05;
+  const scrollSpeed = 0.0025;
+  let current = activeIndex;
+  let target = activeIndex;
+  let dragStartX = 0;
+  let dragStartTarget = 0;
+  let dragDistance = 0;
+  let isDragging = false;
+  let suppressClickUntil = 0;
+  let raf;
+  let settleTimer;
+  let settleResolvers = [];
 
-  const getCenteredOrder = (centerIndex) => cards.map((_, position) => (
-    centerIndex + position - Math.floor(cards.length / 2) + cards.length
-  ) % cards.length);
+  const wrap = (value, length) => ((value % length) + length) % length;
+  const shortestDistance = (from, to) => {
+    let distance = wrap(to - from, cards.length);
+    if (distance > cards.length / 2) distance -= cards.length;
+    return distance;
+  };
 
-  const applyRadialCurve = () => {
-    const middle = Math.floor(cards.length / 2);
-    const angleStep = curveAngle * Math.PI / 180;
-    const gap = Number.parseFloat(getComputedStyle(root).columnGap) || 0;
-    const spacing = (cards[0]?.offsetWidth || 0) + gap;
-    const radius = angleStep ? spacing / Math.sin(angleStep) : 0;
+  const getMetrics = () => {
+    const styles = getComputedStyle(root);
+    const cardSize = cards[0]?.offsetWidth || Number.parseFloat(styles.getPropertyValue("--record-card-size")) || 198;
+    const gapValue = styles.getPropertyValue("--record-gap").trim();
+    const rootFontSize = Number.parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
+    const gap = gapValue.endsWith("rem")
+      ? Number.parseFloat(gapValue) * rootFontSize
+      : Number.parseFloat(gapValue) || 32;
+    return { cardSize, spacing: cardSize + gap };
+  };
 
-    [...root.children].forEach((card, position) => {
-      const slot = position - middle;
-      const cardAngle = slot * angleStep;
-      const arcX = angleStep ? radius * Math.sin(cardAngle) : slot * spacing;
-      const offset = angleStep ? radius * (1 - Math.cos(cardAngle)) : 0;
-      const shift = arcX - slot * spacing;
+  const applyCurve = () => {
+    const { spacing } = getMetrics();
+    const angleStep = bendAngle * Math.PI / 180;
+    const radius = spacing / Math.sin(angleStep);
 
-      card.style.setProperty("--carousel-card-angle", `${slot * curveAngle}deg`);
-      card.style.setProperty("--carousel-arc-offset", `${offset}px`);
-      card.style.setProperty("--carousel-arc-shift", `${shift}px`);
+    cards.forEach((card, index) => {
+      let slot = index - current;
+      while (slot > cards.length / 2) slot -= cards.length;
+      while (slot < -cards.length / 2) slot += cards.length;
+
+      const angle = slot * angleStep;
+      const x = radius * Math.sin(angle);
+      const y = radius * (1 - Math.cos(angle));
+      const angleDegrees = slot * bendAngle;
+
+      card.style.setProperty("--carousel-card-angle", `${angleDegrees}deg`);
+      card.style.setProperty("--carousel-card-x", `${x}px`);
+      card.style.setProperty("--carousel-arc-offset", `${y}px`);
+      card.style.zIndex = String(100 - Math.round(Math.abs(slot) * 10));
     });
   };
 
-  const arrangeDesktopCards = ({ animate = true } = {}) => {
-    if (!desktopLayout.matches) return Promise.resolve();
-
-    if (!animate) root.classList.add("is-positioning-immediately");
-
-    transitionGhosts.forEach((ghost) => {
-      ghost.getAnimations().forEach((animation) => animation.cancel());
-      ghost.remove();
-    });
-    transitionGhosts.clear();
-
-    const previousPositions = animate
-      ? new Map(cards.map((card) => [card, card.getBoundingClientRect()]))
-      : null;
-
-    getCenteredOrder(activeIndex).forEach((index) => root.append(cards[index]));
-    applyRadialCurve();
-
-    if (!animate) {
-      // Commit the final arc before callers measure transition destinations.
-      void root.offsetWidth;
-      root.classList.remove("is-positioning-immediately");
-    }
-
-    if (!previousPositions || typeof cards[0]?.animate !== "function") {
-      return Promise.resolve();
-    }
-
-    const layouts = cards.map((card) => {
-      const previous = previousPositions.get(card);
-      const next = card.getBoundingClientRect();
-
-      return {
-        card,
-        previous,
-        next,
-        offsetX: previous.left - next.left,
-        offsetY: previous.top - next.top,
-      };
-    });
-    const regularMovement = layouts.find(({ offsetX }) => (
-      offsetX && Math.abs(offsetX) <= root.clientWidth / 2
-    ));
-    const movements = [];
-
-    layouts.forEach(({ card, previous, offsetX, offsetY }) => {
-
-      if (offsetX || offsetY) {
-        card.getAnimations().forEach((animation) => animation.cancel());
-        const wrapsAround = Math.abs(offsetX) > root.clientWidth / 2;
-        const movementX = wrapsAround && regularMovement ? regularMovement.offsetX : offsetX;
-        const movementY = wrapsAround && regularMovement ? regularMovement.offsetY : offsetY;
-
-        if (wrapsAround && regularMovement) {
-          const ghost = card.cloneNode(true);
-          ghost.classList.add("record-card-carousel-ghost");
-          ghost.classList.remove("is-active");
-          ghost.removeAttribute("data-record-id");
-          ghost.removeAttribute("aria-current");
-          ghost.setAttribute("aria-hidden", "true");
-          ghost.tabIndex = -1;
-          Object.assign(ghost.style, {
-            top: `${previous.top}px`,
-            left: `${previous.left}px`,
-            width: `${previous.width}px`,
-            height: `${previous.height}px`,
-          });
-          document.body.append(ghost);
-          transitionGhosts.add(ghost);
-
-          const ghostAnimation = ghost.animate([
-            { transform: "translate(0, 0)" },
-            { transform: `translate(${-movementX}px, ${-movementY}px)` },
-          ], {
-            duration: carouselDuration,
-            easing: carouselEasing,
-          });
-          const ghostFinished = ghostAnimation.finished
-            .catch(() => {})
-            .finally(() => {
-              transitionGhosts.delete(ghost);
-              ghost.remove();
-            });
-          movements.push(ghostFinished);
-        }
-
-        const keyframes = [
-          { transform: `translate(${movementX}px, ${movementY}px)` },
-          { transform: "translate(0, 0)" },
-        ];
-
-        const animation = card.animate(keyframes, {
-          duration: carouselDuration,
-          easing: carouselEasing,
-        });
-        movements.push(animation.finished.catch(() => {}));
-      }
-    });
-
-    return Promise.all(movements);
+  const resolveSettled = () => {
+    const resolvers = settleResolvers;
+    settleResolvers = [];
+    resolvers.forEach((resolve) => resolve());
   };
 
-  const waitForScrollEnd = () => new Promise((resolve) => {
-    let idleTimer;
-    let fallbackTimer;
-
-    const finish = () => {
-      window.clearTimeout(idleTimer);
-      window.clearTimeout(fallbackTimer);
-      root.removeEventListener("scroll", scheduleFinish);
-      root.removeEventListener("scrollend", finish);
-      resolve();
-    };
-    const scheduleFinish = () => {
-      window.clearTimeout(idleTimer);
-      idleTimer = window.setTimeout(finish, 180);
-    };
-
-    root.addEventListener("scroll", scheduleFinish, { passive: true });
-    root.addEventListener("scrollend", finish, { once: true });
-    scheduleFinish();
-    fallbackTimer = window.setTimeout(finish, 10000);
+  const waitUntilSettled = () => new Promise((resolve) => {
+    settleResolvers.push(resolve);
   });
+
+  const render = () => {
+    const difference = target - current;
+    current = reducedMotion.matches ? target : current + difference * scrollEase;
+
+    if (Math.abs(target - current) < 0.001) {
+      current = target;
+      resolveSettled();
+    }
+
+    applyCurve();
+    raf = window.requestAnimationFrame(render);
+  };
+
+  const updateActiveCard = (nextIndex) => {
+    activeIndex = wrap(nextIndex, cards.length);
+    cards.forEach((card, index) => {
+      const isActive = index === activeIndex;
+      card.classList.toggle("is-active", isActive);
+      isActive ? card.setAttribute("aria-current", "true") : card.removeAttribute("aria-current");
+    });
+  };
 
   const setActive = (nextIndex, {
     scroll = true,
@@ -166,22 +100,20 @@ export function createRecordCarousel(root) {
     animate = true,
     cue = false,
   } = {}) => {
-    activeIndex = ((nextIndex % cards.length) + cards.length) % cards.length;
+    const normalizedIndex = wrap(nextIndex, cards.length);
+    const distance = shortestDistance(wrap(Math.round(target), cards.length), normalizedIndex);
+    target = scroll ? Math.round(target) + distance : target;
+    updateActiveCard(normalizedIndex);
 
-    cards.forEach((card, index) => {
-      const isActive = index === activeIndex;
-      card.classList.toggle("is-active", isActive);
-      isActive ? card.setAttribute("aria-current", "true") : card.removeAttribute("aria-current");
-    });
-
-    let settled = Promise.resolve();
-
-    if (desktopLayout.matches) {
-      settled = arrangeDesktopCards({ animate });
-    } else if (scroll) {
-      if (behavior === "smooth") settled = waitForScrollEnd();
-      cards[activeIndex].scrollIntoView({ behavior, block: "nearest", inline: "center" });
+    if (!animate || behavior === "auto" || reducedMotion.matches) {
+      current = target;
+      applyCurve();
+      resolveSettled();
     }
+
+    const settled = Math.abs(target - current) < 0.001
+      ? Promise.resolve()
+      : waitUntilSettled();
 
     root.dispatchEvent(new CustomEvent("recordchange", {
       bubbles: true,
@@ -197,19 +129,36 @@ export function createRecordCarousel(root) {
     }
   };
 
-  const selectNearestCard = () => {
-    const carouselCenter = root.scrollLeft + root.clientWidth / 2;
-    const distances = cards.map((card) => Math.abs(getCardCenter(card) - carouselCenter));
-    const nearestIndex = distances.indexOf(Math.min(...distances));
-    if (nearestIndex !== activeIndex) setActive(nearestIndex, { scroll: false });
+  const snapToNearest = ({ cue = false } = {}) => {
+    const nextTarget = Math.round(target);
+    const nextIndex = wrap(nextTarget, cards.length);
+    const changed = nextIndex !== activeIndex;
+    target = nextTarget;
+    updateActiveCard(nextIndex);
+    const settled = Math.abs(target - current) < 0.001 ? Promise.resolve() : waitUntilSettled();
+
+    if (changed) {
+      root.dispatchEvent(new CustomEvent("recordchange", {
+        bubbles: true,
+        detail: { id: cards[nextIndex].dataset.recordId, cue, settled },
+      }));
+    }
   };
 
-  cards.forEach((card) => card.addEventListener("click", () => {
+  root.addEventListener("click", (event) => {
+    if (performance.now() < suppressClickUntil) {
+      event.preventDefault();
+      return;
+    }
+
+    const card = event.target.closest?.("[data-record-id]");
+    if (!card || !root.contains(card)) return;
+
     root.dispatchEvent(new CustomEvent("recordrequest", {
       bubbles: true,
       detail: { id: card.dataset.recordId },
     }));
-  }));
+  });
   previousButton?.addEventListener("click", () => setActive(activeIndex - 1));
   nextButton?.addEventListener("click", () => setActive(activeIndex + 1));
   root.addEventListener("keydown", (event) => {
@@ -224,28 +173,44 @@ export function createRecordCarousel(root) {
     }
   });
 
-  root.addEventListener("scroll", () => {
-    if (desktopLayout.matches) return;
+  root.addEventListener("wheel", (event) => {
+    event.preventDefault();
+    target += (event.deltaY || event.deltaX) * scrollSpeed;
+    window.clearTimeout(settleTimer);
+    settleTimer = window.setTimeout(snapToNearest, 180);
+  }, { passive: false });
 
-    window.clearTimeout(scrollTimer);
-    scrollTimer = window.setTimeout(selectNearestCard, 120);
-  }, { passive: true });
-
-  desktopLayout.addEventListener("change", (event) => {
-    if (event.matches) {
-      arrangeDesktopCards({ animate: false });
-    } else {
-      cards.forEach((card) => {
-        card.style.removeProperty("--carousel-card-angle");
-        card.style.removeProperty("--carousel-arc-offset");
-        card.style.removeProperty("--carousel-arc-shift");
-        root.append(card);
-      });
-      cards[activeIndex].scrollIntoView({ block: "nearest", inline: "center" });
-    }
+  root.addEventListener("pointerdown", (event) => {
+    if (event.button !== 0) return;
+    isDragging = true;
+    dragStartX = event.clientX;
+    dragStartTarget = target;
+    dragDistance = 0;
+    root.classList.add("is-dragging");
   });
 
-  arrangeDesktopCards({ animate: false });
+  window.addEventListener("pointermove", (event) => {
+    if (!isDragging) return;
+    const { spacing } = getMetrics();
+    dragDistance = Math.max(dragDistance, Math.abs(event.clientX - dragStartX));
+    target = dragStartTarget + (dragStartX - event.clientX) / spacing;
+  });
+
+  const finishDrag = (event) => {
+    if (!isDragging) return;
+    isDragging = false;
+    suppressClickUntil = dragDistance > 5 ? performance.now() + 250 : 0;
+    root.classList.remove("is-dragging");
+    snapToNearest();
+  };
+
+  window.addEventListener("pointerup", finishDrag);
+  window.addEventListener("pointercancel", finishDrag);
+  window.addEventListener("resize", applyCurve);
+  reducedMotion.addEventListener("change", applyCurve);
+
+  applyCurve();
+  render();
 
   return {
     get activeId() {
@@ -253,6 +218,11 @@ export function createRecordCarousel(root) {
     },
     setActive,
     setActiveById,
+    destroy() {
+      window.cancelAnimationFrame(raf);
+      window.clearTimeout(settleTimer);
+      resolveSettled();
+    },
   };
 }
 
@@ -476,40 +446,26 @@ export function createTurntablePlayer({
     flyingRecord = createFlyingRecord(source, sourceRect).record;
 
     if (!reducedMotion.matches && typeof flyingRecord.animate === "function") {
-      const extractedTransform = `translate(0, ${-sleeveOverlap}px) scale(1)`;
-      const extraction = flyingRecord.animate([
+      const revealOffset = 0.3;
+      const revealTransform = `translate(${translateX * revealOffset}px, ${translateY * revealOffset}px) scale(${1 + (scale - 1) * revealOffset})`;
+      const travel = flyingRecord.animate([
         {
           clipPath: `inset(0 0 ${sleeveClip}% 0)`,
           transform: "translate(0, 0) scale(1)",
+          offset: 0,
         },
         {
           clipPath: "inset(0 0 0 0)",
-          transform: extractedTransform,
+          transform: revealTransform,
+          offset: revealOffset,
+        },
+        {
+          clipPath: "inset(0 0 0 0)",
+          transform: `translate(${translateX}px, ${translateY}px) scale(${scale})`,
+          offset: 1,
         },
       ], {
-        duration: 230,
-        easing: "cubic-bezier(0.45, 0, 0.2, 1)",
-        fill: "forwards",
-      });
-
-      await extraction.finished.catch(() => {});
-      if (token !== sequenceId) return false;
-
-      // Commit the fully extracted state before beginning the trip to the
-      // platter. Keeping the sleeve clip out of the travel animation prevents
-      // a one-frame clipped edge during the compositor handoff.
-      Object.assign(flyingRecord.style, {
-        clipPath: "none",
-        transform: extractedTransform,
-      });
-      extraction.cancel();
-      await nextFrame();
-
-      const travel = flyingRecord.animate([
-        { transform: extractedTransform },
-        { transform: `translate(${translateX}px, ${translateY}px) scale(${scale})` },
-      ], {
-        duration: 490,
+        duration: 720,
         easing: "cubic-bezier(0.45, 0, 0.2, 1)",
         fill: "forwards",
       });
