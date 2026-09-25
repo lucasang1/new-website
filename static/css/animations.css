@@ -1,0 +1,66 @@
+.connect-menu:not([hidden]) {
+  animation: menu-in 160ms var(--ease-standard) both;
+}
+
+@keyframes menu-in {
+  from {
+    opacity: 0;
+    translate: 0 -0.4rem;
+  }
+}
+
+.collection-view {
+  animation: view-in 1920ms var(--ease-standard) both;
+}
+
+.intro-copy:not(.intro-transition-copy),
+.crate.media-reveal.is-media-ready {
+  animation: intro-item-in 1920ms var(--ease-standard) both;
+}
+
+/* Image-heavy scenes stay invisible until every image in the scene has
+   loaded, then enter as one composed visual instead of painting piecemeal. */
+.js-loading .media-reveal:not(.is-media-ready) {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.collection-view.is-crate-transitioning,
+.collection-view.has-crate-transitioned {
+  animation: none;
+}
+
+@keyframes view-in {
+  from {
+    opacity: 0;
+    translate: 0 0.75rem;
+  }
+}
+
+@keyframes intro-item-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.75rem);
+  }
+}
+
+.now-playing.is-track-resetting {
+  animation: now-playing-reset-in var(--now-playing-fade-duration) var(--ease-standard) both;
+}
+
+@keyframes now-playing-reset-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+  }
+}

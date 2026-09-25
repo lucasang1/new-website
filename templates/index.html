@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Lucas Ang — NUS Merit Scholar and Business Analytics student working in applied AI and data science.">
+    <meta name="theme-color" content="#1a1a1a">
+    <title>Lucas Ang</title>
+    <script>document.documentElement.classList.add("js-loading")</script>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/animations.css">
+    <script type="module" src="/js/app.js"></script>
+  </head>
+  <body data-view="intro">
+    <a class="skip-link" href="#main-content">Skip to content</a>
+
+    <header class="site-header" data-site-header>
+      <nav class="primary-nav" aria-label="Primary navigation">
+        <div class="social-nav" aria-label="Social links">
+          <a href="https://github.com/lucasang1" target="_blank" rel="noopener noreferrer">github<span class="sr-only"> (opens in a new tab)</span></a>
+          <a href="https://www.linkedin.com/in/lucasasz/" target="_blank" rel="noopener noreferrer">linkedin<span class="sr-only"> (opens in a new tab)</span></a>
+          <a href="/Lucas-Ang-Resume.pdf" target="_blank" rel="noopener noreferrer">resume<span class="sr-only"> (opens in a new tab)</span></a>
+        </div>
+
+        <a class="wordmark" href="#home" aria-label="Lucas Ang, home">LUCAS ANG</a>
+
+        <div class="section-nav" aria-label="Portfolio sections">
+          <a href="#experiences" data-section-link="experiences">experiences</a>
+          <a href="#projects" data-section-link="projects">projects</a>
+          <a href="#articles" data-section-link="articles">articles</a>
+        </div>
+
+        <div class="connect-nav">
+          <button class="connect-button" type="button" aria-expanded="false" aria-controls="connect-menu" data-connect-button>
+            <span class="status-dot" aria-hidden="true"></span>
+            connect!
+          </button>
+          <div class="connect-menu" id="connect-menu" data-connect-menu hidden>
+            <a href="https://github.com/lucasang1" target="_blank" rel="noopener noreferrer">github<span class="sr-only"> (opens in a new tab)</span></a>
+            <a href="https://www.linkedin.com/in/lucasasz/" target="_blank" rel="noopener noreferrer">linkedin<span class="sr-only"> (opens in a new tab)</span></a>
+            <a href="/Lucas-Ang-Resume.pdf" target="_blank" rel="noopener noreferrer">resume<span class="sr-only"> (opens in a new tab)</span></a>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main id="main-content">
+      <section class="intro-view" id="home" aria-labelledby="intro-heading" data-intro-view>
+        <h1 class="intro-copy" id="intro-heading">
+          hi, i’m lucas, an <span class="accent accent-scholarship">NUS merit scholar</span> pursuing a<br class="wide-only">
+          degree in business analytics at the school of computing.<br>
+          currently interning at <span class="accent accent-govtech">GovTech</span> as a data scientist,<br>
+          was interning at <span class="accent accent-cpf">CPF</span> as an applied ai engineer.
+        </h1>
+
+        <button class="crate media-reveal" type="button" aria-label="Open the record collection" aria-busy="true" data-crate-button disabled>
+          <span class="crate-records" aria-hidden="true">
+            <img class="crate-record crate-record-c418" src="/img/album-c418-cover.svg" alt="" width="800" height="800" data-crate-record-id="c418">
+            <img class="crate-record crate-record-experiences" src="/img/experiences-cover.svg" alt="" width="800" height="800" data-crate-record-id="experiences">
+            <img class="crate-record crate-record-articles" src="/img/articles-cover.svg" alt="" width="800" height="800" data-crate-record-id="articles">
+            <img class="crate-record crate-record-projects" src="/img/projects-cover.svg" alt="" width="800" height="800" data-crate-record-id="projects">
+            <img class="crate-record crate-record-sade" src="/img/album-sade-cover.svg" alt="" width="800" height="800" data-crate-record-id="sade">
+            <img class="crate-record crate-record-1975" src="/img/album-1975-cover.svg" alt="" width="800" height="800" data-crate-record-id="the-1975">
+            <img class="crate-record crate-record-lany" src="/img/album-lany-cover.svg" alt="" width="800" height="800" data-crate-record-id="lany">
+          </span>
+          <img class="crate-layer crate-back" src="/img/crate-back.svg" alt="" width="800" height="800">
+          <img class="crate-layer crate-front" src="/img/crate-front.svg" alt="" width="800" height="800">
+        </button>
+      </section>
+
+      <section class="collection-view media-reveal" aria-labelledby="collection-heading" aria-busy="true" data-collection-view hidden>
+        <h2 class="sr-only" id="collection-heading">Record collection</h2>
+
+        <div class="turntable-stage" data-turntable-stage>
+          <section class="now-playing" aria-label="Now playing" data-now-playing data-state="empty">
+            <div class="now-playing-details">
+              <p class="now-playing-title" data-player-title>please load a track</p>
+              <p class="now-playing-artist" data-player-artist>-</p>
+            </div>
+
+            <div class="now-playing-timeline">
+              <span data-player-current-time>0:00</span>
+              <input class="now-playing-progress" type="range" min="0" max="1000" value="0" step="1" aria-label="Track position" data-player-progress disabled>
+              <span data-player-remaining-time>-0:00</span>
+            </div>
+
+            <div class="now-playing-controls">
+              <button class="player-control" type="button" aria-label="Previous track" data-player-previous>
+                <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M6 7v18M26 7 10 16l16 9Z"/></svg>
+              </button>
+              <button class="player-control player-control-primary" type="button" aria-label="Play" data-player-toggle>
+                <svg class="player-icon-play" viewBox="0 0 32 32" aria-hidden="true"><path d="m10 6 16 10-16 10Z"/></svg>
+                <svg class="player-icon-pause" viewBox="0 0 32 32" aria-hidden="true"><path d="M8 6h6v20H8zM18 6h6v20h-6z"/></svg>
+              </button>
+              <button class="player-control" type="button" aria-label="Next track" data-player-next>
+                <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M26 7v18M6 7l16 9-16 9Z"/></svg>
+              </button>
+              <button class="player-control player-control-eject" type="button" aria-label="Eject track" data-player-eject>
+                <svg viewBox="0 0 32 32" aria-hidden="true"><path d="m16 7 9 12H7Zm-9 17h18"/></svg>
+              </button>
+            </div>
+
+            <p class="sr-only" aria-live="polite" data-player-announcement>No track loaded</p>
+            <audio preload="metadata" data-player-audio></audio>
+          </section>
+          <div class="turntable" data-turntable>
+            <img class="turntable-base turntable-base-on" src="/img/turntable-base-on.svg" alt="Turntable" width="800" height="800">
+            <img class="turntable-base turntable-base-off" src="/img/turntable-base-off.svg" alt="" width="800" height="800" aria-hidden="true" data-turntable-off>
+            <img class="turntable-needle" src="/img/turntable-needle.svg" alt="" width="800" height="800" aria-hidden="true">
+            <div class="turntable-drop-zone" data-turntable-drop-zone aria-hidden="true"></div>
+          </div>
+        </div>
+
+        <div class="carousel-shell">
+          <button class="carousel-control carousel-control-previous" type="button" data-carousel-previous aria-label="Previous record">&#8592;</button>
+          <div class="record-carousel" role="group" tabindex="0" aria-label="Records. Select a record or use the arrow keys to browse." data-record-carousel>
+            <button class="record-card theme-c418" type="button" data-record-id="c418" aria-label="C418 record">
+              <img src="/img/album-c418-vinyl.svg" alt="" width="800" height="800" loading="lazy">
+              <img src="/img/album-c418-cover.svg" alt="C418" width="800" height="800" loading="lazy">
+            </button>
+            <button class="record-card theme-sade" type="button" data-record-id="sade" aria-label="Sade record">
+              <img src="/img/album-sade-vinyl.svg" alt="" width="800" height="800" loading="lazy">
+              <img src="/img/album-sade-cover.svg" alt="Sade" width="800" height="800" loading="lazy">
+            </button>
+            <button class="record-card theme-projects" type="button" data-record-id="projects" aria-label="Projects record">
+              <img src="/img/projects-vinyl.svg" alt="" width="800" height="800" loading="lazy">
+              <img src="/img/projects-cover.svg" alt="Projects" width="800" height="800" loading="lazy">
+            </button>
+            <button class="record-card theme-experiences is-active" type="button" data-record-id="experiences" aria-label="Experiences record" aria-current="true">
+              <img src="/img/experiences-vinyl.svg" alt="" width="800" height="800" loading="lazy">
+              <img src="/img/experiences-cover.svg" alt="Experiences" width="800" height="800" loading="lazy">
+            </button>
+            <button class="record-card theme-articles" type="button" data-record-id="articles" aria-label="Articles record">
+              <img src="/img/articles-vinyl.svg" alt="" width="800" height="800" loading="lazy">
+              <img src="/img/articles-cover.svg" alt="Articles" width="800" height="800" loading="lazy">
+            </button>
+            <button class="record-card theme-1975" type="button" data-record-id="the-1975" aria-label="The 1975 record">
+              <img src="/img/album-1975-vinyl.svg" alt="" width="800" height="800" loading="lazy">
+              <img src="/img/album-1975-cover.svg" alt="The 1975" width="800" height="800" loading="lazy">
+            </button>
+            <button class="record-card theme-lany" type="button" data-record-id="lany" aria-label="LANY record">
+              <img src="/img/album-lany-vinyl.svg" alt="" width="800" height="800" loading="lazy">
+              <img src="/img/album-lany-cover.svg" alt="LANY" width="800" height="800" loading="lazy">
+            </button>
+          </div>
+          <button class="carousel-control carousel-control-next" type="button" data-carousel-next aria-label="Next record">&#8594;</button>
+        </div>
+      </section>
+    </main>
+
+    <section class="portfolio-reveal" aria-live="polite" aria-hidden="true" data-portfolio-reveal>
+      <div class="portfolio-reveal-card" data-portfolio-reveal-card>
+        <div class="portfolio-reveal-inner" data-portfolio-reveal-inner>
+          <div class="portfolio-reveal-front" aria-hidden="true" data-portfolio-reveal-front></div>
+
+          <article class="portfolio-reveal-back portfolio-panel portfolio-panel-experiences" data-portfolio-panel="experiences" aria-label="Experience">
+            <div class="portfolio-row">
+              <img src="/img/icon-nus.svg" alt="NUS Computing">
+              <p><strong><span class="accent-scholarship">nus computing</span> merit scholar</strong><br><em>2024 - 2027</em></p>
+            </div>
+            <div class="portfolio-row">
+              <img src="/img/icon-govtech.svg" alt="GovTech Singapore">
+              <p><strong><span class="accent-govtech">govtech</span> data scientist</strong><br><em>spring 2027 intern</em></p>
+            </div>
+            <div class="portfolio-row">
+              <img src="/img/icon-cpf.svg" alt="Central Provident Fund Board">
+              <p><strong><span class="accent-cpf">cpf board</span> applied ai engineer</strong><br><em>summer + fall 2026 intern</em></p>
+            </div>
+            <button class="portfolio-back-button" type="button" data-portfolio-back aria-label="Back to records"><img src="/img/back-button.svg" alt="" aria-hidden="true"></button>
+          </article>
+
+          <article class="portfolio-reveal-back portfolio-panel portfolio-panel-projects" data-portfolio-panel="projects" aria-label="Projects">
+            <div class="portfolio-row">
+              <img src="/img/icon-cpf.svg" alt="Central Provident Fund Board" >
+              <p><strong>cpf #1 <span class="external-mark" aria-hidden="true"></span></strong><br><em>internal QA RAG+LLM audit product</em></p>
+            </div>
+            <div class="portfolio-row">
+              <img src="/img/icon-cpf.svg" alt="Central Provident Fund Board" >
+              <p><strong>cpf #2 <span class="external-mark" aria-hidden="true"></span></strong><br><em>multi-phase CSP scheduling engine</em></p>
+            </div>
+            <div class="portfolio-row">
+              <img src="/img/icon-personal.svg" alt="Personal project" >
+              <p><strong>personal #1 <span class="external-mark" aria-hidden="true"></span></strong><br><em>credit card fraud detection model</em></p>
+            </div>
+            <div class="portfolio-row">
+              <img src="/img/icon-personal.svg" alt="Personal project" >
+              <p><strong>personal #2 <span class="external-mark" aria-hidden="true"></span></strong><br><em>stock price forecasting model</em></p>
+            </div>
+            <div class="portfolio-row">
+              <img src="/img/icon-personal.svg" alt="Personal project" >
+              <p><strong>personal #3 <span class="external-mark" aria-hidden="true"></span></strong><br><em>CinemaGoWhere?</em></p>
+            </div>
+            <button class="portfolio-back-button" type="button" data-portfolio-back aria-label="Back to records"><img src="/img/back-button.svg" alt="" aria-hidden="true"></button>
+          </article>
+
+          <article class="portfolio-reveal-back portfolio-panel portfolio-panel-articles" data-portfolio-panel="articles" aria-label="Articles">
+            <div class="portfolio-row">
+              <img src="/img/icon-personal.svg" alt="Personal article" >
+              <p><strong>personal article #1 <span class="external-mark" aria-hidden="true"></span></strong><br><em>ocbc gpt: agent-ai case study</em></p>
+            </div>
+            <div class="portfolio-row">
+              <img src="/img/icon-personal.svg" alt="Personal article" >
+              <p><strong>personal article #2 <span class="external-mark" aria-hidden="true"></span></strong><br><em>stat analysis and perf viz (SPL)</em></p>
+            </div>
+            <div class="portfolio-row">
+              <img src="/img/icon-personal.svg" alt="Personal article" >
+              <p><strong>personal article #3 <span class="external-mark" aria-hidden="true"></span></strong><br><em>olist.com: analysis and optimisation</em></p>
+            </div>
+            <button class="portfolio-back-button" type="button" data-portfolio-back aria-label="Back to records"><img src="/img/back-button.svg" alt="" aria-hidden="true"></button>
+          </article>
+        </div>
+      </div>
+    </section>
+  </body>
+</html>
